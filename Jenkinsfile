@@ -6,6 +6,7 @@ pipeline {
         DOCKER_IMAGE_NAME = "shortener-kutt"
         ACR_URL = "gastromind.azurecr.io"
         ACR_REPOSITORY = "gastromind"
+        ACR_PASSWORD = credentials('c09cffde-0025-463a-8269-68c2dee449a3')
         
     }
 
