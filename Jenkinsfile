@@ -4,7 +4,9 @@ pipeline {
     environment {
         IMAGE_TAG = "${GIT_COMMIT.substring(0, 7)}"
         DOCKER_IMAGE_NAME = "shortener-kutt"
-        ACR_PASSWORD = credentials('ACR_PASSWORD_ID') // Use Jenkins Credentials Plugin
+        ACR_URL = "gastromind.azurecr.io"
+        ACR_REPOSITORY = "gastromind"
+        
     }
 
     stages {
@@ -16,52 +18,27 @@ pipeline {
             }
         }
 
-        stage('Docker Login') {
-            steps {
-                script {
-                    sh 'docker login -u jenkins-sa -p ${ACR_PASSWORD} gastromind.azurecr.io'
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker buildx build -t gastromind/${DOCKER_IMAGE_NAME} . --no-cache'
-                }
-            }
-        }
-
-        stage('Tag Docker Image') {
-            steps {
-                script {
-                    sh 'docker tag gastromind/${DOCKER_IMAGE_NAME} gastromind.azurecr.io/gastromind/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    sh 'docker push gastromind.azurecr.io/gastromind/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
-                }
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                script {
-                    sh 'docker rmi gastromind/${DOCKER_IMAGE_NAME} gastromind.azurecr.io/gastromind/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
+                    sh 'docker login -u jenkins-sa -p ${ACR_URL}'
+                    sh 'docker buildx build -t ${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME} . --no-cache'
+                    sh 'docker tag gastromind/${DOCKER_IMAGE_NAME} ${ACR_URL}/${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
+                    sh 'docker push ${ACR_URL}/${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
                 }
             }
         }
     }
 
     post {
+        // Clean after build
         always {
-            script {
-                echo 'Pipeline execution completed.'
-            }
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                               [pattern: '.propsfile', type: 'EXCLUDE']])
         }
     }
 }
