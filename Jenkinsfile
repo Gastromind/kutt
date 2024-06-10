@@ -6,7 +6,7 @@ pipeline {
         DOCKER_IMAGE_NAME = "shortener-kutt"
         ACR_URL = "gastromind.azurecr.io"
         ACR_REPOSITORY = "gastromind"
-        ACR_PASSWORD = credentials('c09cffde-0025-463a-8269-68c2dee449a3')
+        ACR_PASSWORD = credentials('7740f7c8-dca7-4a1e-adf9-dc850e4418a7')
         
     }
 
@@ -22,7 +22,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker login -u 2aae747a-a37e-492b-9ae7-b919458c575c -p ${ACR_PASSWORD} ${ACR_URL}'
+                    sh 'docker login -u jenkins-sa -p ${ACR_PASSWORD} ${ACR_URL}'
                     sh 'docker buildx build -t ${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME} . --no-cache'
                     sh 'docker tag gastromind/${DOCKER_IMAGE_NAME} ${ACR_URL}/${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
                     sh 'docker push ${ACR_URL}/${ACR_REPOSITORY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
