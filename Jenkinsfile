@@ -6,7 +6,9 @@ pipeline {
         DOCKER_IMAGE_NAME = "shortener-kutt"
         ACR_URL = "gastromind.azurecr.io"
         ACR_REPOSITORY = "gastromind"
-        ACR_PASSWORD = credentials('7740f7c8-dca7-4a1e-adf9-dc850e4418a7')
+        withCredentials([usernamePassword(credentialsId: '7740f7c8-dca7-4a1e-adf9-dc850e4418a7', passwordVariable: 'ACR_USERNAME', usernameVariable: 'ACR_PASSWORD')]) {
+            creds = "\nUser: ${ACR_USERNAME}\nPassword: ${ACR_PASSWORD}\n"
+        }
         
     }
 
@@ -15,7 +17,8 @@ pipeline {
             steps {
                 script {
                     echo "IMAGE_TAG: ${env.IMAGE_TAG}, DOCKER_IMAGE_NAME=${env.DOCKER_IMAGE_NAME}"
-                    echo "ACR_PASSWORD: ${env.ACR_PASSWORD}"
+                    println creds
+                    echo "ACR_USERNAME:${env.ACR_USERNAME}, ACR_PASSWORD: ${env.ACR_PASSWORD}"
                 }
             }
         }
