@@ -15,6 +15,7 @@ pipeline {
             steps {
                 script {
                     echo "IMAGE_TAG: ${env.IMAGE_TAG}, DOCKER_IMAGE_NAME=${env.DOCKER_IMAGE_NAME}"
+                    echo "ACR_PASSWORD: ${env.ACR_PASSWORD}"
                 }
             }
         }
