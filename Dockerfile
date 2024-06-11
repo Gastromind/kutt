@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM kutt/kutt
 
 RUN apk add --update bash
 
